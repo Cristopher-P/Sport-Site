@@ -4,7 +4,7 @@ import { LEAGUES } from "@/lib/leagues";
 export function Header() {
   return (
     <header className="border-b border-white/10 bg-neutral-950/80 backdrop-blur sticky top-0 z-10">
-      <div className="mx-auto max-w-5xl px-4 py-4 flex items-center justify-between gap-4">
+      <div className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between gap-4">
         <Link href="/" className="text-lg font-bold tracking-tight text-white">
           Cancha<span className="text-emerald-400">Hoy</span>
         </Link>
@@ -26,7 +26,7 @@ export function Header() {
           Premium
         </Link>
       </div>
-      <div className="sm:hidden mx-auto max-w-5xl px-4 pb-3 flex gap-4 overflow-x-auto text-sm text-neutral-300">
+      <div className="sm:hidden mx-auto max-w-6xl px-4 pb-3 flex gap-4 overflow-x-auto text-sm text-neutral-300">
         {LEAGUES.map((league) => (
           <Link
             key={league.slug}

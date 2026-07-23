@@ -1,7 +1,7 @@
 export function Footer() {
   return (
     <footer className="mt-auto border-t border-white/10 bg-neutral-950">
-      <div className="mx-auto max-w-5xl px-4 py-8 text-sm text-neutral-400 space-y-3">
+      <div className="mx-auto max-w-6xl px-4 py-8 text-sm text-neutral-400 space-y-3">
         <p>
           Contenido informativo únicamente. CanchaHoy no opera casas de apuestas, no
           procesa apuestas ni garantiza resultados — el análisis y las estadísticas

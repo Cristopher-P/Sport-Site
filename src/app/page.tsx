@@ -27,7 +27,7 @@ export default async function HomePage() {
             No hay partidos programados por el momento. Vuelve pronto.
           </p>
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {fixtures.slice(0, 20).map((fixture) => (
               <FixtureCard key={fixture.idEvent} fixture={fixture} showLeague />
             ))}
