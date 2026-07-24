@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { League, LEAGUES } from "./leagues";
 import { matchSlug } from "./slug";
+import { dateInSiteTimeZone, fixtureUtcDate, todayInSiteTimeZone } from "./timezone";
 
 const API_KEY = process.env.THESPORTSDB_API_KEY || "123";
 const BASE_URL = `https://www.thesportsdb.com/api/v1/json/${API_KEY}`;
@@ -87,9 +88,11 @@ export async function getLeagueFixtures(league: League): Promise<Fixture[]> {
   }
 
   const round = await getRoundEvents(league.id, next.intRound, next.strSeason);
-  const todayIso = new Date().toISOString().slice(0, 10);
+  const todayLocal = todayInSiteTimeZone();
 
-  const upcoming = round.filter((e) => e.dateEvent >= todayIso);
+  const upcoming = round.filter(
+    (e) => dateInSiteTimeZone(fixtureUtcDate(e.dateEvent, e.strTime)) >= todayLocal
+  );
   const source = upcoming.length > 0 ? upcoming : [next];
 
   return source

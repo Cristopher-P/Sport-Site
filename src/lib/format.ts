@@ -1,8 +1,10 @@
+import { SITE_TIME_ZONE, fixtureUtcDate } from "./timezone";
+
 export function formatMatchDate(dateEvent: string, time?: string | null): string {
-  const iso = time ? `${dateEvent}T${time}` : `${dateEvent}T00:00:00`;
-  const date = new Date(iso);
+  const date = fixtureUtcDate(dateEvent, time);
 
   const datePart = date.toLocaleDateString("es-MX", {
+    timeZone: SITE_TIME_ZONE,
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -11,6 +13,7 @@ export function formatMatchDate(dateEvent: string, time?: string | null): string
   if (!time) return datePart;
 
   const timePart = date.toLocaleTimeString("es-MX", {
+    timeZone: SITE_TIME_ZONE,
     hour: "numeric",
     minute: "2-digit",
   });

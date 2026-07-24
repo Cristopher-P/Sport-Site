@@ -63,7 +63,7 @@ export default async function MatchPage({
         </h1>
         <p className="text-neutral-300">
           {formatMatchDate(fixture.dateEvent, fixture.strTime)}
-          {fixture.strTime ? " UTC" : ""}
+          {fixture.strTime ? " (hora CDMX)" : ""}
         </p>
         {fixture.strVenue && (
           <p className="text-sm text-neutral-500">

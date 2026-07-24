@@ -67,7 +67,7 @@ export default async function ReportPage({
               </p>
               <p className="text-sm text-neutral-500">
                 {formatMatchDate(fixture.dateEvent, fixture.strTime)}
-                {fixture.strTime ? " UTC" : ""}
+                {fixture.strTime ? " (hora CDMX)" : ""}
               </p>
               <dl className="text-sm text-neutral-300 space-y-1 pt-2 border-t border-white/5">
                 <div>

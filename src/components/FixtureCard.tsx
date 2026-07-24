@@ -21,7 +21,7 @@ export function FixtureCard({ fixture, showLeague = false }: { fixture: Fixture;
           </p>
           <p className="text-sm text-neutral-400 mt-0.5">
             {formatMatchDate(fixture.dateEvent, fixture.strTime)}
-            {fixture.strTime ? " UTC" : ""}
+            {fixture.strTime ? " (hora CDMX)" : ""}
           </p>
         </div>
         <span className="shrink-0 text-neutral-600 text-xl">›</span>
