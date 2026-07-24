@@ -5,14 +5,33 @@ import { isStripeConfigured } from "@/lib/stripe";
 export const metadata: Metadata = {
   title: "CanchaHoy Premium",
   description:
-    "Análisis estadístico de varios partidos por venir: forma reciente, historial head-to-head y probabilidades estimadas.",
+    "Análisis estadístico de varios partidos por venir: forma reciente real y probabilidad estimada, sin anuncios.",
 };
 
 const INCLUDES = [
-  "Forma reciente de los equipos en sus últimos partidos",
-  "Historial head-to-head entre los equipos que se enfrentan",
-  "Probabilidad estimada por partido, explicada con sus datos",
+  "Forma reciente real de cada equipo (últimos 5 partidos jugados, no inventada)",
+  "Probabilidad estimada por partido, con la fórmula explicada — no una caja negra",
   "Reporte nuevo cada semana con varios partidos por venir",
+  "Sin anuncios en ninguna página de Premium",
+];
+
+const FAQ = [
+  {
+    q: "¿Esto me dice qué apuesta hacer?",
+    a: "No. Te damos datos reales (forma reciente, probabilidad estimada) para que decidas tú. No prometemos apuestas ganadoras — nadie puede garantizar eso honestamente.",
+  },
+  {
+    q: "¿Por qué pagar si los momios ya son públicos?",
+    a: "Los momios de las casas de apuestas no son nuestro producto. Te damos el trabajo de análisis (forma reciente de cada equipo, calculado con datos reales) que normalmente tomaría tiempo armar tú mismo.",
+  },
+  {
+    q: "¿Puedo cancelar cuando quiera?",
+    a: "Sí, es una suscripción mensual sin permanencia. Cancelas desde el mismo botón de pago (Stripe) cuando quieras.",
+  },
+  {
+    q: "¿De dónde salen los datos?",
+    a: "De resultados reales de partidos ya jugados. La probabilidad es una estimación simple basada en esos puntos — lo decimos claro, no es un modelo profesional.",
+  },
 ];
 
 export default async function PremiumPage({
@@ -24,7 +43,7 @@ export default async function PremiumPage({
   const stripeReady = isStripeConfigured();
 
   return (
-    <div className="max-w-xl mx-auto space-y-8">
+    <div className="max-w-xl mx-auto space-y-10">
       <div className="text-center space-y-3">
         <h1 className="text-3xl font-bold text-white">CanchaHoy Premium</h1>
         <p className="text-neutral-400">
@@ -78,6 +97,18 @@ export default async function PremiumPage({
           </Link>
           .
         </p>
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold text-neutral-100 text-center">Preguntas</h2>
+        <dl className="space-y-4">
+          {FAQ.map(({ q, a }) => (
+            <div key={q} className="border-b border-white/5 pb-4">
+              <dt className="font-medium text-neutral-100">{q}</dt>
+              <dd className="text-sm text-neutral-400 mt-1">{a}</dd>
+            </div>
+          ))}
+        </dl>
       </div>
 
       <p className="text-xs text-neutral-600 text-center">

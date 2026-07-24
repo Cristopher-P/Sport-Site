@@ -1,11 +1,19 @@
 import Link from "next/link";
-import { getAllUpcomingFixtures } from "@/lib/sportsdb";
+import { getAllUpcomingFixtures, getAllRecentResults } from "@/lib/sportsdb";
 import { buildHomepage } from "@/lib/homepage";
 import { LEAGUES } from "@/lib/leagues";
+import { getFootballNews } from "@/lib/news";
 import { FixtureCard } from "@/components/FixtureCard";
+import { ResultCard } from "@/components/ResultCard";
+import { NewsCard } from "@/components/NewsCard";
+import { AdSlot } from "@/components/AdSlot";
 
 export default async function HomePage() {
-  const fixtures = await getAllUpcomingFixtures();
+  const [fixtures, recentResults, news] = await Promise.all([
+    getAllUpcomingFixtures(),
+    getAllRecentResults(),
+    getFootballNews(),
+  ]);
   const { today, featured, more } = buildHomepage(fixtures);
 
   return (
@@ -54,6 +62,28 @@ export default async function HomePage() {
         )}
       </section>
 
+      {news.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="text-lg font-semibold text-neutral-100">Noticias</h2>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {news.map((item) => (
+              <NewsCard key={item.link} item={item} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {recentResults.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="text-lg font-semibold text-neutral-100">Resultados recientes</h2>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {recentResults.slice(0, 6).map((fixture) => (
+              <ResultCard key={fixture.idEvent} fixture={fixture} showLeague />
+            ))}
+          </div>
+        </section>
+      )}
+
       {featured.length > 0 && (
         <section className="space-y-3">
           <h2 className="text-lg font-semibold text-neutral-100">
@@ -69,6 +99,8 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      <AdSlot slot="REPLACE_WITH_HOME_FEED_SLOT_ID" />
 
       {more.length > 0 && (
         <section className="space-y-3">
