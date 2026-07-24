@@ -20,16 +20,24 @@ Abre http://localhost:3000
   de [TheSportsDB](https://www.thesportsdb.com/documentation). Se generan
   automáticamente cientos de páginas (una por partido) — ese es el motor de
   SEO del sitio. Se refrescan solas cada 12 horas.
-- **`/premium`**: landing de la suscripción. El botón de pago se desactiva
-  solo si Stripe no está configurado.
-- **`/premium/reportes/ejemplo`**: cómo se ve un reporte real (con datos de
-  ejemplo, claramente marcados como tal).
+- **Home**: secciones Hoy / Noticias / Resultados recientes / Destacados de
+  la semana / Más partidos — no es una sola lista plana.
+- **Noticias**: titulares reales del RSS público de Marca (titular + resumen
+  corto + link a la nota original, nunca el artículo completo).
+- **`/premium`**: landing de la suscripción con FAQ. El botón de pago se
+  desactiva solo si Stripe no está configurado.
+- **`/premium/reportes/ejemplo`**: reporte con forma reciente REAL de cada
+  equipo (últimos 5 partidos jugados, vía TheSportsDB) y una probabilidad
+  estimada calculada con una fórmula simple y transparente — no inventada,
+  pero tampoco un modelo profesional (se lo decimos así al usuario).
 - **`/premium/acceso` + `/api/access`**: login simple por correo — si el
   correo tiene una suscripción activa en la base local, se le da acceso vía
   cookie firmada.
 - **`/api/stripe/checkout` + `/api/stripe/webhook`**: flujo completo de
   suscripción con Stripe (Checkout + webhook que marca al suscriptor como
   activo).
+- **Anuncios**: `components/AdSlot.tsx` no muestra nada hasta que configures
+  `NEXT_PUBLIC_ADSENSE_CLIENT_ID`. Nunca aparecen dentro de `/premium/reportes`.
 
 ## Lo que TÚ debes hacer para que cobre de verdad
 
@@ -57,9 +65,19 @@ esto es intencional y son pasos que te tocan a ti:
 5. **Revisa el aviso legal/responsable** con las leyes de tu país antes de
    cobrar en vivo — el sitio nunca procesa apuestas ni dinero de apuestas,
    solo vende acceso a análisis informativo, pero no reemplaza asesoría legal.
-6. **Escribe el primer reporte real**: reemplaza el contenido de ejemplo en
-   `src/app/premium/reportes/[slug]/page.tsx` con tus reportes reales
-   (puedo ayudarte a automatizar esto con datos reales de forma/historial).
+6. **Escribe el primer reporte real**: hoy `/premium/reportes/[slug]` solo
+   sirve el reporte "ejemplo" (con datos reales, pero es de muestra) —
+   agrega tus reportes de verdad ahí conforme los publiques cada semana.
+7. **Crea tu cuenta de Google AdSense** en https://adsense.google.com y pega
+   tu client ID en `NEXT_PUBLIC_ADSENSE_CLIENT_ID`. La aprobación no es
+   instantánea y normalmente exige que el sitio ya tenga contenido y tráfico
+   real — no la puede tramitar un asistente por ti.
+8. **Consigue tu propia API key de TheSportsDB** antes de lanzar con tráfico
+   real. La key gratuita "123" que usa este proyecto es pública y compartida
+   por cualquiera que pruebe su API — bajo uso pesado devuelve error 429
+   (rate limit), como nos pasó durante las pruebas de esta sesión. Bajo
+   tráfico normal con el refresco de 12h no debería ser problema, pero una
+   key personal (gratis, vía su Patreon) da más margen.
 
 ## Estructura
 
