@@ -81,6 +81,48 @@ async function getPastEvent(leagueId: string): Promise<SportEvent | null> {
   return events[0] ?? null;
 }
 
+const LineupPlayerSchema = z.object({
+  idPlayer: z.string(),
+  strPlayer: z.string(),
+  strPosition: z.string().nullable().optional(),
+  strHome: z.string().nullable().optional(), // "Yes" | "No"
+  strSubstitute: z.string().nullable().optional(), // "Yes" | "No"
+  strTeam: z.string(),
+});
+
+const LineupResponseSchema = z.object({
+  lineup: z.array(LineupPlayerSchema).nullable(),
+});
+
+export type LineupPlayer = z.infer<typeof LineupPlayerSchema>;
+
+export type MatchLineup = {
+  home: { starters: LineupPlayer[]; substitutes: LineupPlayer[] };
+  away: { starters: LineupPlayer[]; substitutes: LineupPlayer[] };
+};
+
+/**
+ * Lineups are usually only populated close to kickoff or after the match —
+ * for fixtures weeks out this will normally be null, which is expected, not
+ * a bug.
+ */
+export async function getLineup(eventId: string): Promise<MatchLineup | null> {
+  const json = await fetchJson(`lookuplineup.php?id=${eventId}`);
+  const parsed = LineupResponseSchema.safeParse(json);
+  if (!parsed.success || !parsed.data.lineup || parsed.data.lineup.length === 0) return null;
+
+  const home: MatchLineup["home"] = { starters: [], substitutes: [] };
+  const away: MatchLineup["away"] = { starters: [], substitutes: [] };
+
+  for (const player of parsed.data.lineup) {
+    const side = player.strHome === "Yes" ? home : away;
+    const bucket = player.strSubstitute === "Yes" ? side.substitutes : side.starters;
+    bucket.push(player);
+  }
+
+  return { home, away };
+}
+
 /** Last (up to) 5 finished matches for one team, most recent first. */
 export async function getTeamRecentResults(teamId: string): Promise<SportEvent[]> {
   const events = await fetchResults(`eventslast.php?id=${teamId}`);
@@ -174,5 +216,10 @@ export async function getFixtureBySlug(
   slug: string
 ): Promise<Fixture | null> {
   const fixtures = await getLeagueFixtures(league);
-  return fixtures.find((f) => f.slug === slug) ?? null;
+  const upcoming = fixtures.find((f) => f.slug === slug);
+  if (upcoming) return upcoming;
+
+  // Not in the upcoming round — it may already have been played.
+  const results = await getLeagueRecentResults(league);
+  return results.find((f) => f.slug === slug) ?? null;
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getFootballNews } from "@/lib/news";
 import { NewsCard } from "@/components/NewsCard";
+import { NewsHero } from "@/components/NewsHero";
 
 export const metadata: Metadata = {
   title: "Noticias de fútbol",
@@ -23,10 +24,13 @@ export default async function NoticiasPage() {
       {news.length === 0 ? (
         <p className="text-neutral-500">No hay noticias disponibles por el momento.</p>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {news.map((item) => (
-            <NewsCard key={item.link} item={item} />
-          ))}
+        <div className="space-y-6">
+          <NewsHero item={news[0]} />
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {news.slice(1).map((item) => (
+              <NewsCard key={item.link} item={item} />
+            ))}
+          </div>
         </div>
       )}
     </div>

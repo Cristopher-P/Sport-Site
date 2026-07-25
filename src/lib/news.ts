@@ -14,10 +14,18 @@ export type NewsItem = {
   summary: string;
   link: string;
   pubDate: string;
+  image: string | null;
   source: "Marca";
 };
 
-const parser = new XMLParser();
+const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_" });
+
+function extractImage(item: Record<string, unknown>): string | null {
+  const media = item["media:content"];
+  const candidate = Array.isArray(media) ? media[0] : media;
+  const url = (candidate as Record<string, unknown> | undefined)?.["@_url"];
+  return typeof url === "string" && url.length > 0 ? url : null;
+}
 
 export async function getFootballNews(limit = 6): Promise<NewsItem[]> {
   try {
@@ -39,7 +47,7 @@ export async function getFootballNews(limit = 6): Promise<NewsItem[]> {
         const link = typeof item.link === "string" ? item.link.trim() : "";
         const pubDate = typeof item.pubDate === "string" ? item.pubDate.trim() : "";
         if (!title || !link) return null;
-        return { title, summary, link, pubDate, source: "Marca" };
+        return { title, summary, link, pubDate, image: extractImage(item), source: "Marca" };
       })
       .filter((item): item is NewsItem => item !== null)
       .slice(0, limit);

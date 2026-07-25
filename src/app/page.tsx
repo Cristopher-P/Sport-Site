@@ -6,6 +6,7 @@ import { getFootballNews } from "@/lib/news";
 import { FixtureCard } from "@/components/FixtureCard";
 import { ResultCard } from "@/components/ResultCard";
 import { NewsCard } from "@/components/NewsCard";
+import { NewsHero } from "@/components/NewsHero";
 import { AdSlot } from "@/components/AdSlot";
 
 export default async function HomePage() {
@@ -70,11 +71,14 @@ export default async function HomePage() {
               Ver todas
             </Link>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {news.map((item) => (
-              <NewsCard key={item.link} item={item} />
-            ))}
-          </div>
+          <NewsHero item={news[0]} />
+          {news.length > 1 && (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {news.slice(1, 4).map((item) => (
+                <NewsCard key={item.link} item={item} />
+              ))}
+            </div>
+          )}
         </section>
       )}
 
