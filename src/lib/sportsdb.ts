@@ -49,7 +49,18 @@ async function fetchJson(path: string): Promise<unknown> {
     next: { revalidate: REVALIDATE_SECONDS, tags: ["fixtures"] },
   });
   if (!res.ok) return null;
-  return res.json();
+
+  // Some endpoints return a 200 with an empty body (e.g. no standings yet
+  // for a league) or, when the shared free key gets rate-limited, a
+  // non-JSON error page — res.json() would throw on either. Treat both as
+  // "no data" instead of crashing the page.
+  const text = await res.text();
+  if (!text) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
 }
 
 async function fetchEvents(path: string): Promise<SportEvent[]> {
@@ -222,6 +233,11 @@ export async function getRecentLeagueRounds(
 
   return rounds.flat().filter((e) => e.intHomeScore != null && e.intAwayScore != null);
 }
+
+// Note: lookuptable.php (league standings) was tried here and dropped —
+// the free API tier caps it to ~5 rows (only the very top of the table),
+// so a specific match's two teams are almost never both in it. Not worth
+// shipping a section that's empty for nearly every match.
 
 export async function getFixtureBySlug(
   league: League,

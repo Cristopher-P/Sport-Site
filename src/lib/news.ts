@@ -55,3 +55,15 @@ export async function getFootballNews(limit = 6): Promise<NewsItem[]> {
     return [];
   }
 }
+
+/** Simple substring match against team names — no per-team news source, so
+ * we filter the general feed instead of pretending to have one. */
+export function filterNewsByTeams(news: NewsItem[], teamNames: string[], limit = 3): NewsItem[] {
+  const needles = teamNames.map((name) => name.toLowerCase());
+  return news
+    .filter((item) => {
+      const haystack = `${item.title} ${item.summary}`.toLowerCase();
+      return needles.some((needle) => haystack.includes(needle));
+    })
+    .slice(0, limit);
+}

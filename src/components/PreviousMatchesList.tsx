@@ -5,9 +5,9 @@ function resultBadge(event: SportEvent, teamName: string): { label: string; clas
   const isHome = event.strHomeTeam === teamName;
   const own = Number(isHome ? event.intHomeScore : event.intAwayScore);
   const opp = Number(isHome ? event.intAwayScore : event.intHomeScore);
-  if (own > opp) return { label: "G", className: "bg-emerald-500/20 text-emerald-400" };
-  if (own < opp) return { label: "P", className: "bg-red-500/20 text-red-400" };
-  return { label: "E", className: "bg-neutral-700 text-neutral-300" };
+  if (own > opp) return { label: "Victoria", className: "bg-emerald-500/20 text-emerald-400" };
+  if (own < opp) return { label: "Derrota", className: "bg-red-500/20 text-red-400" };
+  return { label: "Empate", className: "bg-neutral-700 text-neutral-300" };
 }
 
 export function PreviousMatchesList({
@@ -31,7 +31,7 @@ export function PreviousMatchesList({
         return (
           <li key={event.idEvent} className="flex items-center gap-2 text-sm">
             <span
-              className={`shrink-0 h-5 w-5 flex items-center justify-center rounded text-xs font-bold ${badge.className}`}
+              className={`shrink-0 rounded px-1.5 py-0.5 text-[11px] font-semibold ${badge.className}`}
             >
               {badge.label}
             </span>

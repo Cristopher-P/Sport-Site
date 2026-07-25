@@ -10,11 +10,13 @@ import {
 } from "@/lib/sportsdb";
 import { getTeamFormFromPool, estimateProbability } from "@/lib/team-form";
 import { getAuthorizedEmail } from "@/lib/require-access";
+import { getFootballNews, filterNewsByTeams } from "@/lib/news";
 import { MatchHero } from "@/components/MatchHero";
 import { LineupSection } from "@/components/LineupSection";
 import { PreviousMatchesList } from "@/components/PreviousMatchesList";
 import { ProbabilityBar } from "@/components/ProbabilityBar";
 import { StatsTable } from "@/components/StatsTable";
+import { NewsCard } from "@/components/NewsCard";
 
 export async function generateStaticParams() {
   const params: { liga: string; partido: string }[] = [];
@@ -67,11 +69,14 @@ export default async function MatchPage({
 
   const played = fixture.intHomeScore != null && fixture.intAwayScore != null;
 
-  const [lineup, pool, email] = await Promise.all([
+  const [lineup, pool, email, news] = await Promise.all([
     getLineup(fixture.idEvent),
     getRecentLeagueRounds(league),
     getAuthorizedEmail(),
+    getFootballNews(30),
   ]);
+
+  const relatedNews = filterNewsByTeams(news, [fixture.strHomeTeam, fixture.strAwayTeam]);
 
   // The pool spans several rounds, so it includes the match itself once
   // played — exclude it from "partidos anteriores" so a team doesn't show
@@ -126,6 +131,19 @@ export default async function MatchPage({
           </div>
         </div>
       </section>
+
+      {relatedNews.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="text-sm font-semibold text-neutral-200 text-center">
+            Noticias relacionadas
+          </h2>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {relatedNews.map((item) => (
+              <NewsCard key={item.link} item={item} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {!played &&
         (email ? (
