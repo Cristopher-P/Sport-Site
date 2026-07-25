@@ -8,11 +8,12 @@ import {
   getLineup,
   getTeamRecentResults,
 } from "@/lib/sportsdb";
-import { getTeamForm, estimateProbability } from "@/lib/team-form";
+import { getTeamForm, estimateProbability, type SimpleProbability } from "@/lib/team-form";
 import { getAuthorizedEmail } from "@/lib/require-access";
-import { formatMatchDate } from "@/lib/format";
+import { MatchHero } from "@/components/MatchHero";
 import { LineupSection } from "@/components/LineupSection";
 import { PreviousMatchesList } from "@/components/PreviousMatchesList";
+import { ProbabilityBar } from "@/components/ProbabilityBar";
 
 export async function generateStaticParams() {
   const params: { liga: string; partido: string }[] = [];
@@ -77,7 +78,7 @@ export default async function MatchPage({
   const homePrevious = homeResults.filter((e) => e.idEvent !== fixture.idEvent);
   const awayPrevious = awayResults.filter((e) => e.idEvent !== fixture.idEvent);
 
-  let insight: { home: string; away: string; probability: string } | null = null;
+  let insight: { home: string; away: string; probability: SimpleProbability } | null = null;
   if (email && !played) {
     const [home, away] = await Promise.all([
       fixture.idHomeTeam
@@ -87,74 +88,46 @@ export default async function MatchPage({
         ? getTeamForm(fixture.idAwayTeam, fixture.strAwayTeam)
         : { sequence: "Sin datos recientes", points: 0, played: 0 },
     ]);
-    const probability = estimateProbability(home, away, fixture.league.sport);
     insight = {
       home: home.sequence,
       away: away.sequence,
-      probability: `Local ${probability.home}%${
-        probability.draw > 0 ? ` · Empate ${probability.draw}%` : ""
-      } · Visitante ${probability.away}%`,
+      probability: estimateProbability(home, away, fixture.league.sport),
     };
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8">
+    <div className="max-w-2xl mx-auto space-y-6">
       <div>
         <Link href={`/${league.slug}`} className="text-sm text-emerald-400 hover:underline">
           ← {league.name}
         </Link>
       </div>
 
-      <div className="text-center space-y-2">
-        <p className="text-sm text-neutral-400">{league.name}</p>
-
-        {played ? (
-          <>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">
-              {fixture.strHomeTeam} {fixture.intHomeScore} - {fixture.intAwayScore}{" "}
-              {fixture.strAwayTeam}
-            </h1>
-            <p className="text-neutral-400 text-sm">
-              Final · {formatMatchDate(fixture.dateEvent, null)}
-            </p>
-          </>
-        ) : (
-          <>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">
-              {fixture.strHomeTeam} vs {fixture.strAwayTeam}
-            </h1>
-            <p className="text-neutral-300">
-              {formatMatchDate(fixture.dateEvent, fixture.strTime)}
-              {fixture.strTime ? " (hora CDMX)" : ""}
-            </p>
-          </>
-        )}
-
-        {fixture.strVenue && (
-          <p className="text-sm text-neutral-500">
-            {fixture.strVenue}
-            {fixture.strCountry ? `, ${fixture.strCountry}` : ""}
-          </p>
-        )}
-      </div>
+      <MatchHero fixture={fixture} played={played} />
 
       <LineupSection
         lineup={lineup}
         homeTeam={fixture.strHomeTeam}
+        homeBadge={fixture.strHomeTeamBadge}
         awayTeam={fixture.strAwayTeam}
+        awayBadge={fixture.strAwayTeamBadge}
       />
 
-      <section className="rounded-xl border border-white/10 bg-neutral-900 px-5 py-4">
-        <h2 className="text-sm font-semibold text-neutral-200 text-center mb-3">
-          Partidos anteriores
+      <section className="rounded-xl border border-white/10 bg-neutral-900 px-5 py-5">
+        <h2 className="text-sm font-semibold text-neutral-200 text-center mb-4">
+          📋 Partidos anteriores
         </h2>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <p className="text-xs font-medium text-emerald-400 mb-2">{fixture.strHomeTeam}</p>
+            <p className="text-xs font-medium text-emerald-400 mb-2 truncate">
+              {fixture.strHomeTeam}
+            </p>
             <PreviousMatchesList teamName={fixture.strHomeTeam} results={homePrevious} />
           </div>
           <div>
-            <p className="text-xs font-medium text-emerald-400 mb-2">{fixture.strAwayTeam}</p>
+            <p className="text-xs font-medium text-emerald-400 mb-2 truncate">
+              {fixture.strAwayTeam}
+            </p>
             <PreviousMatchesList teamName={fixture.strAwayTeam} results={awayPrevious} />
           </div>
         </div>
@@ -162,11 +135,18 @@ export default async function MatchPage({
 
       {!played &&
         (insight ? (
-          <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/5 px-5 py-4 space-y-3">
+          <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/5 px-5 py-5 space-y-4">
             <p className="text-xs font-semibold text-emerald-400 text-center">
-              ANÁLISIS PREMIUM
+              ⭐ ANÁLISIS PREMIUM
             </p>
-            <dl className="text-sm text-neutral-200 space-y-1">
+            <ProbabilityBar
+              home={insight.probability.home}
+              draw={insight.probability.draw}
+              away={insight.probability.away}
+              homeLabel={fixture.strHomeTeam}
+              awayLabel={fixture.strAwayTeam}
+            />
+            <dl className="text-sm text-neutral-200 space-y-1 pt-2 border-t border-white/5">
               <div>
                 <dt className="inline text-neutral-400">
                   Forma reciente {fixture.strHomeTeam}:{" "}
@@ -178,10 +158,6 @@ export default async function MatchPage({
                   Forma reciente {fixture.strAwayTeam}:{" "}
                 </dt>
                 <dd className="inline">{insight.away}</dd>
-              </div>
-              <div>
-                <dt className="inline text-neutral-400">Probabilidad estimada: </dt>
-                <dd className="inline">{insight.probability}</dd>
               </div>
             </dl>
             <p className="text-xs text-neutral-500 text-center">

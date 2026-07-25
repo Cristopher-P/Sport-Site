@@ -25,6 +25,7 @@ const EventSchema = z.object({
   strVenue: z.string().nullable().optional(),
   strCountry: z.string().nullable().optional(),
   strLeague: z.string(),
+  strLeagueBadge: z.string().nullable().optional(),
   intRound: z.string().nullable().optional(),
   strSeason: z.string().nullable().optional(),
   strStatus: z.string().nullable().optional(),
@@ -88,6 +89,8 @@ const LineupPlayerSchema = z.object({
   strHome: z.string().nullable().optional(), // "Yes" | "No"
   strSubstitute: z.string().nullable().optional(), // "Yes" | "No"
   strTeam: z.string(),
+  strCutout: z.string().nullable().optional(),
+  intSquadNumber: z.string().nullable().optional(),
 });
 
 const LineupResponseSchema = z.object({

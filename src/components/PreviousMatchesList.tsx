@@ -1,4 +1,5 @@
 import type { SportEvent } from "@/lib/sportsdb";
+import { TeamBadge } from "@/components/TeamBadge";
 
 function resultBadge(event: SportEvent, teamName: string): { label: string; className: string } {
   const isHome = event.strHomeTeam === teamName;
@@ -21,9 +22,11 @@ export function PreviousMatchesList({
   }
 
   return (
-    <ul className="space-y-2">
+    <ul className="space-y-2.5">
       {results.slice(0, 5).map((event) => {
-        const opponent = event.strHomeTeam === teamName ? event.strAwayTeam : event.strHomeTeam;
+        const isHome = event.strHomeTeam === teamName;
+        const opponent = isHome ? event.strAwayTeam : event.strHomeTeam;
+        const opponentBadge = isHome ? event.strAwayTeamBadge : event.strHomeTeamBadge;
         const badge = resultBadge(event, teamName);
         return (
           <li key={event.idEvent} className="flex items-center gap-2 text-sm">
@@ -32,6 +35,7 @@ export function PreviousMatchesList({
             >
               {badge.label}
             </span>
+            <TeamBadge src={opponentBadge} alt={opponent} />
             <span className="text-neutral-300 truncate flex-1">vs {opponent}</span>
             <span className="text-neutral-500 tabular-nums">
               {event.intHomeScore}-{event.intAwayScore}

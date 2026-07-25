@@ -1,16 +1,7 @@
 import Link from "next/link";
 import type { Fixture } from "@/lib/sportsdb";
 import { formatMatchDate } from "@/lib/format";
-
-function TeamBadge({ src, alt }: { src?: string | null; alt: string }) {
-  if (!src) {
-    return (
-      <div className="h-8 w-8 shrink-0 rounded-full bg-neutral-800 border border-white/10" />
-    );
-  }
-  // eslint-disable-next-line @next/next/no-img-element
-  return <img src={src} alt={alt} className="h-8 w-8 shrink-0 object-contain" loading="lazy" />;
-}
+import { TeamBadge } from "@/components/TeamBadge";
 
 export function ResultCard({ fixture, showLeague = false }: { fixture: Fixture; showLeague?: boolean }) {
   return (
