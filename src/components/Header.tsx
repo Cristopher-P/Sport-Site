@@ -5,18 +5,20 @@ export function Header() {
   return (
     <header className="border-b border-white/10 bg-neutral-950/80 backdrop-blur sticky top-0 z-10">
       <div className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between gap-4">
-        <Link href="/" className="shrink-0 text-lg font-bold tracking-tight text-white">
-          Cancha<span className="text-emerald-400">Hoy</span>
-        </Link>
+        <div className="flex items-center gap-6">
+          <Link href="/" className="shrink-0 text-lg font-bold tracking-tight text-white">
+            Cancha<span className="text-emerald-400">Hoy</span>
+          </Link>
 
-        <nav className="hidden sm:flex items-center gap-5 text-sm text-neutral-300">
-          <Link href="/" className="hover:text-white transition-colors">
-            Inicio
-          </Link>
-          <Link href="/noticias" className="hover:text-white transition-colors">
-            Noticias
-          </Link>
-        </nav>
+          <nav className="hidden sm:flex items-center gap-5 text-sm text-neutral-300">
+            <Link href="/" className="hover:text-white transition-colors">
+              Inicio
+            </Link>
+            <Link href="/noticias" className="hover:text-white transition-colors">
+              Noticias
+            </Link>
+          </nav>
+        </div>
 
         <Link
           href="/premium"
