@@ -52,7 +52,7 @@ export function MatchHero({ fixture, played }: { fixture: Fixture; played: boole
         )}
         {fixture.strVenue && (
           <p className="text-sm text-neutral-500">
-            📍 {fixture.strVenue}
+            {fixture.strVenue}
             {fixture.strCountry ? `, ${fixture.strCountry}` : ""}
           </p>
         )}

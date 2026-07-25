@@ -42,7 +42,7 @@ export function LineupSection({
   if (!lineup) {
     return (
       <section className="rounded-xl border border-white/10 bg-neutral-900 px-5 py-6 text-center">
-        <h2 className="text-sm font-semibold text-neutral-200 mb-1">⚽ Alineaciones</h2>
+        <h2 className="text-sm font-semibold text-neutral-200 mb-1">Alineaciones</h2>
         <p className="text-sm text-neutral-500">
           Aún no anunciadas. Suelen publicarse cerca de la hora del partido.
         </p>
@@ -52,7 +52,7 @@ export function LineupSection({
 
   return (
     <section className="rounded-xl border border-white/10 bg-neutral-900 px-5 py-5 space-y-4">
-      <h2 className="text-sm font-semibold text-neutral-200 text-center">⚽ Alineaciones</h2>
+      <h2 className="text-sm font-semibold text-neutral-200 text-center">Alineaciones</h2>
       <div className="grid grid-cols-2 gap-4">
         <div>
           <div className="flex items-center gap-2 mb-3">

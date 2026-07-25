@@ -6,14 +6,15 @@ import {
   getLeagueFixtures,
   getFixtureBySlug,
   getLineup,
-  getTeamRecentResults,
+  getRecentLeagueRounds,
 } from "@/lib/sportsdb";
-import { getTeamForm, estimateProbability, type SimpleProbability } from "@/lib/team-form";
+import { getTeamFormFromPool, estimateProbability } from "@/lib/team-form";
 import { getAuthorizedEmail } from "@/lib/require-access";
 import { MatchHero } from "@/components/MatchHero";
 import { LineupSection } from "@/components/LineupSection";
 import { PreviousMatchesList } from "@/components/PreviousMatchesList";
 import { ProbabilityBar } from "@/components/ProbabilityBar";
+import { StatsTable } from "@/components/StatsTable";
 
 export async function generateStaticParams() {
   const params: { liga: string; partido: string }[] = [];
@@ -66,34 +67,27 @@ export default async function MatchPage({
 
   const played = fixture.intHomeScore != null && fixture.intAwayScore != null;
 
-  const [lineup, homeResults, awayResults, email] = await Promise.all([
+  const [lineup, pool, email] = await Promise.all([
     getLineup(fixture.idEvent),
-    fixture.idHomeTeam ? getTeamRecentResults(fixture.idHomeTeam) : Promise.resolve([]),
-    fixture.idAwayTeam ? getTeamRecentResults(fixture.idAwayTeam) : Promise.resolve([]),
+    getRecentLeagueRounds(league),
     getAuthorizedEmail(),
   ]);
 
-  // Recent results include the match itself once it's played — exclude it
-  // from "partidos anteriores" so a team doesn't show up playing itself.
-  const homePrevious = homeResults.filter((e) => e.idEvent !== fixture.idEvent);
-  const awayPrevious = awayResults.filter((e) => e.idEvent !== fixture.idEvent);
+  // The pool spans several rounds, so it includes the match itself once
+  // played — exclude it from "partidos anteriores" so a team doesn't show
+  // up playing itself.
+  const poolExcludingThisMatch = pool.filter((e) => e.idEvent !== fixture.idEvent);
+  const homePrevious = poolExcludingThisMatch.filter(
+    (e) => e.strHomeTeam === fixture.strHomeTeam || e.strAwayTeam === fixture.strHomeTeam
+  );
+  const awayPrevious = poolExcludingThisMatch.filter(
+    (e) => e.strHomeTeam === fixture.strAwayTeam || e.strAwayTeam === fixture.strAwayTeam
+  );
 
-  let insight: { home: string; away: string; probability: SimpleProbability } | null = null;
-  if (email && !played) {
-    const [home, away] = await Promise.all([
-      fixture.idHomeTeam
-        ? getTeamForm(fixture.idHomeTeam, fixture.strHomeTeam)
-        : { sequence: "Sin datos recientes", points: 0, played: 0 },
-      fixture.idAwayTeam
-        ? getTeamForm(fixture.idAwayTeam, fixture.strAwayTeam)
-        : { sequence: "Sin datos recientes", points: 0, played: 0 },
-    ]);
-    insight = {
-      home: home.sequence,
-      away: away.sequence,
-      probability: estimateProbability(home, away, fixture.league.sport),
-    };
-  }
+  const homeForm = getTeamFormFromPool(poolExcludingThisMatch, fixture.strHomeTeam);
+  const awayForm = getTeamFormFromPool(poolExcludingThisMatch, fixture.strAwayTeam);
+  const probability = estimateProbability(homeForm, awayForm, fixture.league.sport);
+  const hasStats = homeForm.played > 0 || awayForm.played > 0;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -115,7 +109,7 @@ export default async function MatchPage({
 
       <section className="rounded-xl border border-white/10 bg-neutral-900 px-5 py-5">
         <h2 className="text-sm font-semibold text-neutral-200 text-center mb-4">
-          📋 Partidos anteriores
+          Partidos anteriores
         </h2>
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -134,42 +128,37 @@ export default async function MatchPage({
       </section>
 
       {!played &&
-        (insight ? (
-          <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/5 px-5 py-5 space-y-4">
+        (email ? (
+          <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/5 px-5 py-5 space-y-5">
             <p className="text-xs font-semibold text-emerald-400 text-center">
-              ⭐ ANÁLISIS PREMIUM
+              ANÁLISIS PREMIUM
             </p>
-            <ProbabilityBar
-              home={insight.probability.home}
-              draw={insight.probability.draw}
-              away={insight.probability.away}
-              homeLabel={fixture.strHomeTeam}
-              awayLabel={fixture.strAwayTeam}
-            />
-            <dl className="text-sm text-neutral-200 space-y-1 pt-2 border-t border-white/5">
-              <div>
-                <dt className="inline text-neutral-400">
-                  Forma reciente {fixture.strHomeTeam}:{" "}
-                </dt>
-                <dd className="inline">{insight.home}</dd>
-              </div>
-              <div>
-                <dt className="inline text-neutral-400">
-                  Forma reciente {fixture.strAwayTeam}:{" "}
-                </dt>
-                <dd className="inline">{insight.away}</dd>
-              </div>
-            </dl>
+
+            {hasStats && (
+              <ProbabilityBar
+                home={probability.home}
+                draw={probability.draw}
+                away={probability.away}
+                homeLabel={fixture.strHomeTeam}
+                awayLabel={fixture.strAwayTeam}
+              />
+            )}
+
+            <div className="pt-1 border-t border-white/5">
+              <StatsTable home={homeForm} away={awayForm} />
+            </div>
+
             <p className="text-xs text-neutral-500 text-center">
-              Forma reciente real (últimos 5 partidos jugados). Probabilidad: estimación
-              simple, no un modelo profesional ni garantía de resultado.
+              Estadísticas calculadas con partidos reales (hasta 5 por equipo, de
+              rondas recientes). La probabilidad es una estimación simple a partir de
+              esos datos, no un modelo profesional ni garantía de resultado.
             </p>
           </div>
         ) : (
           <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/5 px-5 py-4 text-center space-y-2">
             <p className="text-neutral-200 font-medium">
-              ¿Quieres forma reciente y probabilidad estimada para este y otros
-              partidos por venir?
+              ¿Quieres estadísticas completas y probabilidad estimada para este y
+              otros partidos por venir?
             </p>
             <Link
               href="/premium"

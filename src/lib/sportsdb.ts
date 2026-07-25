@@ -44,12 +44,6 @@ const EventsResponseSchema = z.object({
   events: z.array(EventSchema).nullable(),
 });
 
-// eventslast.php uses a different envelope key ("results") than every other
-// endpoint here ("events") — TheSportsDB is inconsistent about this.
-const ResultsResponseSchema = z.object({
-  results: z.array(EventSchema).nullable(),
-});
-
 async function fetchJson(path: string): Promise<unknown> {
   const res = await fetch(`${BASE_URL}/${path}`, {
     next: { revalidate: REVALIDATE_SECONDS, tags: ["fixtures"] },
@@ -63,13 +57,6 @@ async function fetchEvents(path: string): Promise<SportEvent[]> {
   const parsed = EventsResponseSchema.safeParse(json);
   if (!parsed.success || !parsed.data.events) return [];
   return parsed.data.events;
-}
-
-async function fetchResults(path: string): Promise<SportEvent[]> {
-  const json = await fetchJson(path);
-  const parsed = ResultsResponseSchema.safeParse(json);
-  if (!parsed.success || !parsed.data.results) return [];
-  return parsed.data.results;
 }
 
 async function getNextEvent(leagueId: string): Promise<SportEvent | null> {
@@ -124,14 +111,6 @@ export async function getLineup(eventId: string): Promise<MatchLineup | null> {
   }
 
   return { home, away };
-}
-
-/** Last (up to) 5 finished matches for one team, most recent first. */
-export async function getTeamRecentResults(teamId: string): Promise<SportEvent[]> {
-  const events = await fetchResults(`eventslast.php?id=${teamId}`);
-  return events
-    .filter((e) => e.intHomeScore != null && e.intAwayScore != null)
-    .sort((a, b) => b.dateEvent.localeCompare(a.dateEvent));
 }
 
 async function getRoundEvents(
@@ -212,6 +191,36 @@ export async function getLeagueRecentResults(league: League): Promise<Fixture[]>
 export async function getAllRecentResults(): Promise<Fixture[]> {
   const results = await Promise.all(LEAGUES.map((league) => getLeagueRecentResults(league)));
   return results.flat().sort((a, b) => b.dateEvent.localeCompare(a.dateEvent));
+}
+
+/**
+ * Combines several recent rounds of a league (not just the latest) into one
+ * pool of finished matches, used to compute real per-team recent form.
+ * eventslast.php (a team's own match history) is capped at 1 result on the
+ * free API tier — fetching whole rounds isn't capped, so pooling rounds is
+ * the only way to get genuine multi-game history for free.
+ */
+export async function getRecentLeagueRounds(
+  league: League,
+  roundsBack = 6
+): Promise<SportEvent[]> {
+  const past = await getPastEvent(league.id);
+  if (!past || !past.intRound || !past.strSeason) return past ? [past] : [];
+
+  const currentRound = Number(past.intRound);
+  const season = past.strSeason;
+  if (!Number.isFinite(currentRound)) return [past];
+
+  const roundNumbers: number[] = [];
+  for (let r = currentRound; r > currentRound - roundsBack && r >= 1; r--) {
+    roundNumbers.push(r);
+  }
+
+  const rounds = await Promise.all(
+    roundNumbers.map((r) => getRoundEvents(league.id, String(r), season))
+  );
+
+  return rounds.flat().filter((e) => e.intHomeScore != null && e.intAwayScore != null);
 }
 
 export async function getFixtureBySlug(
