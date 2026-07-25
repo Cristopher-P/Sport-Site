@@ -64,7 +64,12 @@ export default async function HomePage() {
 
       {news.length > 0 && (
         <section className="space-y-3">
-          <h2 className="text-lg font-semibold text-neutral-100">Noticias</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-neutral-100">Noticias</h2>
+            <Link href="/noticias" className="text-sm text-emerald-400 hover:underline">
+              Ver todas
+            </Link>
+          </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {news.map((item) => (
               <NewsCard key={item.link} item={item} />
