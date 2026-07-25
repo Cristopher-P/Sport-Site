@@ -13,27 +13,27 @@ export function MatchHero({ fixture, played }: { fixture: Fixture; played: boole
         <p className="text-sm text-neutral-400">{fixture.league.name}</p>
       </div>
 
-      <div className="flex items-center justify-center gap-4 sm:gap-8">
-        <div className="flex-1 flex flex-col items-center gap-2 max-w-[9rem]">
-          <TeamBadge src={fixture.strHomeTeamBadge} alt={fixture.strHomeTeam} size="lg" />
-          <span className="font-semibold text-neutral-100 text-sm sm:text-base">
+      <div className="flex items-center justify-center gap-6 sm:gap-12">
+        <div className="flex-1 flex flex-col items-center gap-3 max-w-[12rem]">
+          <TeamBadge src={fixture.strHomeTeamBadge} alt={fixture.strHomeTeam} size="xl" />
+          <span className="font-semibold text-neutral-100 text-base sm:text-lg">
             {fixture.strHomeTeam}
           </span>
         </div>
 
         <div className="shrink-0">
           {played ? (
-            <p className="text-3xl sm:text-4xl font-bold text-white tabular-nums">
+            <p className="text-4xl sm:text-5xl font-bold text-white tabular-nums">
               {fixture.intHomeScore} - {fixture.intAwayScore}
             </p>
           ) : (
-            <p className="text-lg font-semibold text-neutral-500">VS</p>
+            <p className="text-xl font-semibold text-neutral-500">VS</p>
           )}
         </div>
 
-        <div className="flex-1 flex flex-col items-center gap-2 max-w-[9rem]">
-          <TeamBadge src={fixture.strAwayTeamBadge} alt={fixture.strAwayTeam} size="lg" />
-          <span className="font-semibold text-neutral-100 text-sm sm:text-base">
+        <div className="flex-1 flex flex-col items-center gap-3 max-w-[12rem]">
+          <TeamBadge src={fixture.strAwayTeamBadge} alt={fixture.strAwayTeam} size="xl" />
+          <span className="font-semibold text-neutral-100 text-base sm:text-lg">
             {fixture.strAwayTeam}
           </span>
         </div>

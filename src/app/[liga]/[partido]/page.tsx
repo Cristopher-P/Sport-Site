@@ -96,7 +96,7 @@ export default async function MatchPage({
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
       <div>
         <Link href={`/${league.slug}`} className="text-sm text-emerald-400 hover:underline">
           ← {league.name}
