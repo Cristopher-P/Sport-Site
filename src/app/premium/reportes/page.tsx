@@ -1,10 +1,13 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getAuthorizedEmail } from "@/lib/require-access";
+import { REPORTS } from "@/content/reports";
 
 export default async function ReportesIndexPage() {
   const email = await getAuthorizedEmail();
   if (!email) redirect("/premium/acceso");
+
+  const reports = [...REPORTS].sort((a, b) => b.publicadoEl.localeCompare(a.publicadoEl));
 
   return (
     <div className="max-w-xl mx-auto space-y-6">
@@ -13,13 +16,34 @@ export default async function ReportesIndexPage() {
         Sesión activa: {email}. Publicamos un reporte nuevo cada semana con varios
         partidos por venir.
       </p>
-      <Link
-        href="/premium/reportes/ejemplo"
-        className="block rounded-xl border border-white/10 bg-neutral-900 px-4 py-3 hover:border-emerald-400/50 transition-colors"
-      >
-        <p className="font-semibold text-neutral-100">Reporte de ejemplo</p>
-        <p className="text-sm text-neutral-400">Formato de muestra</p>
-      </Link>
+
+      <div className="space-y-3">
+        {reports.map((report) => (
+          <Link
+            key={report.slug}
+            href={`/premium/reportes/${report.slug}`}
+            className="block rounded-xl border border-white/10 bg-neutral-900 px-4 py-3 hover:border-emerald-400/50 transition-colors"
+          >
+            <p className="font-semibold text-neutral-100">{report.titulo}</p>
+            <p className="text-sm text-neutral-400">Publicado el {report.publicadoEl}</p>
+          </Link>
+        ))}
+
+        {reports.length === 0 && (
+          <p className="text-sm text-neutral-500">
+            Todavía no hay reportes publicados esta semana. Mientras tanto, mira el
+            formato en el ejemplo de abajo.
+          </p>
+        )}
+
+        <Link
+          href="/premium/reportes/ejemplo"
+          className="block rounded-xl border border-white/10 bg-neutral-900 px-4 py-3 hover:border-emerald-400/50 transition-colors"
+        >
+          <p className="font-semibold text-neutral-100">Reporte de ejemplo</p>
+          <p className="text-sm text-neutral-400">Formato de muestra</p>
+        </Link>
+      </div>
     </div>
   );
 }

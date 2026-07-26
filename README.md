@@ -38,6 +38,16 @@ Abre http://localhost:3000
   activo).
 - **Anuncios**: `components/AdSlot.tsx` no muestra nada hasta que configures
   `NEXT_PUBLIC_ADSENSE_CLIENT_ID`. Nunca aparecen dentro de `/premium/reportes`.
+- **Reportes Premium editables sin código**: `src/content/reports.ts` — agrega
+  un objeto ahí cada semana (liga, partido, nota opcional) y el reporte se
+  publica solo, con estadísticas reales calculadas automáticamente. No hay
+  que tocar ningún componente. Instrucciones completas dentro del archivo.
+- **Términos de servicio y Aviso de privacidad** (`/terminos`, `/privacidad`):
+  plantillas base ligadas a lo que el sitio realmente hace — **no son
+  asesoría legal**, revísalas con un abogado antes de publicar.
+- **Manejo de errores**: página 404 y de error propias con la marca del
+  sitio (`not-found.tsx`, `error.tsx`, `global-error.tsx`) en vez de las
+  genéricas de Next.js.
 
 ## Lo que TÚ debes hacer para que cobre de verdad
 
@@ -65,9 +75,9 @@ esto es intencional y son pasos que te tocan a ti:
 5. **Revisa el aviso legal/responsable** con las leyes de tu país antes de
    cobrar en vivo — el sitio nunca procesa apuestas ni dinero de apuestas,
    solo vende acceso a análisis informativo, pero no reemplaza asesoría legal.
-6. **Escribe el primer reporte real**: hoy `/premium/reportes/[slug]` solo
-   sirve el reporte "ejemplo" (con datos reales, pero es de muestra) —
-   agrega tus reportes de verdad ahí conforme los publiques cada semana.
+6. **Publica tu primer reporte real**: edita `src/content/reports.ts` (ver
+   las instrucciones dentro del archivo) — no necesitas tocar componentes de
+   React, solo agregar los partidos y una nota opcional tuya.
 7. **Crea tu cuenta de Google AdSense** en https://adsense.google.com y pega
    tu client ID en `NEXT_PUBLIC_ADSENSE_CLIENT_ID`. La aprobación no es
    instantánea y normalmente exige que el sitio ya tenga contenido y tráfico
@@ -78,6 +88,9 @@ esto es intencional y son pasos que te tocan a ti:
    (rate limit), como nos pasó durante las pruebas de esta sesión. Bajo
    tráfico normal con el refresco de 12h no debería ser problema, pero una
    key personal (gratis, vía su Patreon) da más margen.
+9. **Completa `/terminos` y `/privacidad`**: tienen partes marcadas
+   `[completar]` (correo de contacto, política de reembolsos, fecha) — y de
+   nuevo, haz que un abogado las revise antes de cobrar en vivo.
 
 ## Estructura
 

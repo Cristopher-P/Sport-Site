@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export function Footer() {
   return (
     <footer className="mt-auto border-t border-white/10 bg-neutral-950">
@@ -18,6 +20,14 @@ export function Footer() {
             CONADIC
           </a>
           .
+        </p>
+        <p className="flex flex-wrap gap-x-4 gap-y-1 text-neutral-500">
+          <Link href="/terminos" className="hover:text-neutral-300">
+            Términos de servicio
+          </Link>
+          <Link href="/privacidad" className="hover:text-neutral-300">
+            Aviso de privacidad
+          </Link>
         </p>
         <p className="text-neutral-600">
           © {new Date().getFullYear()} CanchaHoy. Datos de partidos vía TheSportsDB.

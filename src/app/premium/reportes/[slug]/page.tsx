@@ -1,32 +1,26 @@
+import type { Metadata } from "next";
 import { redirect, notFound } from "next/navigation";
 import { getAuthorizedEmail } from "@/lib/require-access";
-import { getAllUpcomingFixtures, getRecentLeagueRounds, type Fixture } from "@/lib/sportsdb";
-import { getTeamFormFromPool, estimateProbability } from "@/lib/team-form";
-import type { League } from "@/lib/leagues";
-import { formatMatchDate } from "@/lib/format";
-import { ProbabilityBar } from "@/components/ProbabilityBar";
-import { StatsTable } from "@/components/StatsTable";
+import { getAllUpcomingFixtures } from "@/lib/sportsdb";
+import { analyzeFixtures, resolveReportMatches } from "@/lib/report-analysis";
+import { REPORTS } from "@/content/reports";
+import { MatchAnalysisCard } from "@/components/MatchAnalysisCard";
 
-const REPORT_SIZE = 4;
+const EXAMPLE_SIZE = 4;
 
-async function analyzeFixtures(fixtures: Fixture[]) {
-  const leaguePools = new Map<string, Promise<Awaited<ReturnType<typeof getRecentLeagueRounds>>>>();
-  const poolFor = (league: League) => {
-    if (!leaguePools.has(league.slug)) {
-      leaguePools.set(league.slug, getRecentLeagueRounds(league));
-    }
-    return leaguePools.get(league.slug)!;
-  };
+export async function generateStaticParams() {
+  return REPORTS.map((report) => ({ slug: report.slug }));
+}
 
-  return Promise.all(
-    fixtures.map(async (fixture) => {
-      const pool = (await poolFor(fixture.league)).filter((e) => e.idEvent !== fixture.idEvent);
-      const home = getTeamFormFromPool(pool, fixture.strHomeTeam);
-      const away = getTeamFormFromPool(pool, fixture.strAwayTeam);
-      const probability = estimateProbability(home, away, fixture.league.sport);
-      return { fixture, home, away, probability };
-    })
-  );
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  if (slug === "ejemplo") return { title: "Reporte de ejemplo" };
+  const report = REPORTS.find((r) => r.slug === slug);
+  return report ? { title: report.titulo } : {};
 }
 
 export default async function ReportPage({
@@ -35,69 +29,69 @@ export default async function ReportPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const isExample = slug === "ejemplo";
 
-  if (!isExample) {
-    const email = await getAuthorizedEmail();
-    if (!email) redirect("/premium/acceso");
-    // Reportes reales se agregan aquí conforme se publican cada semana.
-    notFound();
+  if (slug === "ejemplo") {
+    const fixtures = (await getAllUpcomingFixtures()).slice(0, EXAMPLE_SIZE);
+    const analyses = await analyzeFixtures(fixtures);
+
+    return (
+      <div className="max-w-2xl mx-auto space-y-6">
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-white">Reporte de la semana</h1>
+          <span className="rounded-full bg-amber-400/20 text-amber-300 text-xs font-semibold px-2 py-0.5">
+            EJEMPLO
+          </span>
+        </div>
+        <p className="text-neutral-400 text-sm">
+          Así se ve un reporte real — de hecho, estas son estadísticas reales de cada
+          equipo, tomadas de sus últimos partidos jugados. Cada semana el reporte
+          real trae esto mismo para varios partidos por venir — no apuestas
+          garantizadas, análisis para que decidas tú.
+        </p>
+
+        <div className="space-y-4">
+          {analyses.map((analysis) => (
+            <MatchAnalysisCard key={analysis.fixture.idEvent} analysis={analysis} />
+          ))}
+        </div>
+
+        <p className="text-xs text-neutral-600">
+          Estadísticas calculadas a partir de resultados reales (hasta 5 partidos
+          recientes por equipo). La probabilidad es una estimación simple basada en
+          esos datos, no un modelo profesional ni una garantía de resultado.
+          Contenido informativo. +18.
+        </p>
+      </div>
+    );
   }
 
-  const fixtures = (await getAllUpcomingFixtures()).slice(0, REPORT_SIZE);
-  const analyses = await analyzeFixtures(fixtures);
+  const email = await getAuthorizedEmail();
+  if (!email) redirect("/premium/acceso");
+
+  const report = REPORTS.find((r) => r.slug === slug);
+  if (!report) notFound();
+
+  const analyses = await resolveReportMatches(report.matches);
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center gap-2">
-        <h1 className="text-2xl font-bold text-white">Reporte de la semana</h1>
-        <span className="rounded-full bg-amber-400/20 text-amber-300 text-xs font-semibold px-2 py-0.5">
-          EJEMPLO
-        </span>
+      <div>
+        <h1 className="text-2xl font-bold text-white">{report.titulo}</h1>
+        <p className="text-sm text-neutral-500 mt-1">Publicado el {report.publicadoEl}</p>
       </div>
-      <p className="text-neutral-400 text-sm">
-        Así se ve un reporte real — de hecho, estas son estadísticas reales de cada
-        equipo, tomadas de sus últimos partidos jugados. Cada semana el reporte
-        real trae esto mismo para varios partidos por venir — no apuestas
-        garantizadas, análisis para que decidas tú.
-      </p>
 
-      <div className="space-y-4">
-        {analyses.map(({ fixture, home, away, probability }) => {
-          const hasStats = home.played > 0 || away.played > 0;
-          return (
-            <div
-              key={fixture.idEvent}
-              className="rounded-xl border border-white/10 bg-neutral-900 p-4 space-y-4"
-            >
-              <div>
-                <p className="text-xs text-emerald-400 font-medium">{fixture.league.name}</p>
-                <p className="font-semibold text-neutral-100">
-                  {fixture.strHomeTeam} vs {fixture.strAwayTeam}
-                </p>
-                <p className="text-sm text-neutral-500">
-                  {formatMatchDate(fixture.dateEvent, fixture.strTime)}
-                  {fixture.strTime ? " (hora CDMX)" : ""}
-                </p>
-              </div>
-
-              {hasStats && (
-                <ProbabilityBar
-                  home={probability.home}
-                  draw={probability.draw}
-                  away={probability.away}
-                  homeLabel={fixture.strHomeTeam}
-                  awayLabel={fixture.strAwayTeam}
-                />
-              )}
-
-              <div className="pt-1 border-t border-white/5">
-                <StatsTable home={home} away={away} sport={fixture.league.sport} />
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      {analyses.length === 0 ? (
+        <p className="text-neutral-500">
+          No pudimos cargar los partidos de este reporte por el momento. Intenta de
+          nuevo en unos minutos.
+        </p>
+      ) : (
+        <div className="space-y-4">
+          {analyses.map((analysis) => (
+            <MatchAnalysisCard key={analysis.fixture.idEvent} analysis={analysis} />
+          ))}
+        </div>
+      )}
 
       <p className="text-xs text-neutral-600">
         Estadísticas calculadas a partir de resultados reales (hasta 5 partidos
