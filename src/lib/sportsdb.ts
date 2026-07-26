@@ -44,16 +44,28 @@ const EventsResponseSchema = z.object({
   events: z.array(EventSchema).nullable(),
 });
 
-async function fetchJson(path: string): Promise<unknown> {
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function fetchJson(path: string, attempt = 1): Promise<unknown> {
   const res = await fetch(`${BASE_URL}/${path}`, {
     next: { revalidate: REVALIDATE_SECONDS, tags: ["fixtures"] },
   });
-  if (!res.ok) return null;
+
+  if (!res.ok) {
+    // The shared free API key gets rate-limited under heavy use — retry
+    // once after a short delay instead of failing the whole page.
+    if (attempt < 2) {
+      await sleep(500);
+      return fetchJson(path, attempt + 1);
+    }
+    return null;
+  }
 
   // Some endpoints return a 200 with an empty body (e.g. no standings yet
-  // for a league) or, when the shared free key gets rate-limited, a
-  // non-JSON error page — res.json() would throw on either. Treat both as
-  // "no data" instead of crashing the page.
+  // for a league) or a non-JSON error page — res.json() would throw on
+  // either. Treat both as "no data" instead of crashing the page.
   const text = await res.text();
   if (!text) return null;
   try {

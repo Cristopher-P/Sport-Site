@@ -92,7 +92,7 @@ export default async function ReportPage({
               )}
 
               <div className="pt-1 border-t border-white/5">
-                <StatsTable home={home} away={away} />
+                <StatsTable home={home} away={away} sport={fixture.league.sport} />
               </div>
             </div>
           );

@@ -10,6 +10,10 @@ export type TeamForm = {
   losses: number;
   goalsFor: number;
   goalsAgainst: number;
+  /** % of these matches where both teams scored — null if no matches. Soccer-relevant only. */
+  bothTeamsScoredPct: number | null;
+  /** % of these matches with more than 2.5 combined goals — null if no matches. Soccer-relevant only. */
+  over25Pct: number | null;
 };
 
 function resultLetter(event: SportEvent, teamName: string): "G" | "E" | "P" {
@@ -30,19 +34,11 @@ const EMPTY_FORM: TeamForm = {
   losses: 0,
   goalsFor: 0,
   goalsAgainst: 0,
+  bothTeamsScoredPct: null,
+  over25Pct: null,
 };
 
-/**
- * Real recent form for a team, computed from a pool of finished matches
- * (see sportsdb.ts getRecentLeagueRounds) — no fabricated data. Pass a pool
- * that spans several rounds so this isn't based on a single match.
- */
-export function getTeamFormFromPool(pool: SportEvent[], teamName: string): TeamForm {
-  const teamEvents = pool
-    .filter((e) => e.strHomeTeam === teamName || e.strAwayTeam === teamName)
-    .sort((a, b) => b.dateEvent.localeCompare(a.dateEvent))
-    .slice(0, 5);
-
+function computeForm(teamEvents: SportEvent[], teamName: string): TeamForm {
   if (teamEvents.length === 0) return EMPTY_FORM;
 
   let wins = 0;
@@ -50,6 +46,8 @@ export function getTeamFormFromPool(pool: SportEvent[], teamName: string): TeamF
   let losses = 0;
   let goalsFor = 0;
   let goalsAgainst = 0;
+  let bothScored = 0;
+  let over25 = 0;
   const letters: string[] = [];
 
   for (const event of teamEvents) {
@@ -58,6 +56,8 @@ export function getTeamFormFromPool(pool: SportEvent[], teamName: string): TeamF
     const opp = Number(isHome ? event.intAwayScore : event.intHomeScore);
     goalsFor += own;
     goalsAgainst += opp;
+    if (own > 0 && opp > 0) bothScored++;
+    if (own + opp > 2.5) over25++;
 
     const letter = resultLetter(event, teamName);
     letters.push(letter);
@@ -75,7 +75,39 @@ export function getTeamFormFromPool(pool: SportEvent[], teamName: string): TeamF
     losses,
     goalsFor,
     goalsAgainst,
+    bothTeamsScoredPct: Math.round((bothScored / teamEvents.length) * 100),
+    over25Pct: Math.round((over25 / teamEvents.length) * 100),
   };
+}
+
+/**
+ * Real recent form for a team (any venue), computed from a pool of finished
+ * matches (see sportsdb.ts getRecentLeagueRounds) — no fabricated data. Pass
+ * a pool that spans several rounds so this isn't based on a single match.
+ */
+export function getTeamFormFromPool(pool: SportEvent[], teamName: string): TeamForm {
+  const teamEvents = pool
+    .filter((e) => e.strHomeTeam === teamName || e.strAwayTeam === teamName)
+    .sort((a, b) => b.dateEvent.localeCompare(a.dateEvent))
+    .slice(0, 5);
+  return computeForm(teamEvents, teamName);
+}
+
+/**
+ * Same as getTeamFormFromPool but restricted to matches the team played at
+ * home (or away) specifically — a team's home record often differs a lot
+ * from its overall record, which is why betting-analysis sites split it out.
+ */
+export function getVenueFormFromPool(
+  pool: SportEvent[],
+  teamName: string,
+  venue: "home" | "away"
+): TeamForm {
+  const teamEvents = pool
+    .filter((e) => (venue === "home" ? e.strHomeTeam === teamName : e.strAwayTeam === teamName))
+    .sort((a, b) => b.dateEvent.localeCompare(a.dateEvent))
+    .slice(0, 5);
+  return computeForm(teamEvents, teamName);
 }
 
 export type SimpleProbability = {

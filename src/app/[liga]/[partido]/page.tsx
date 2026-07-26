@@ -8,7 +8,7 @@ import {
   getLineup,
   getRecentLeagueRounds,
 } from "@/lib/sportsdb";
-import { getTeamFormFromPool, estimateProbability } from "@/lib/team-form";
+import { getTeamFormFromPool, getVenueFormFromPool, estimateProbability } from "@/lib/team-form";
 import { getAuthorizedEmail } from "@/lib/require-access";
 import { getFootballNews, filterNewsByTeams } from "@/lib/news";
 import { MatchHero } from "@/components/MatchHero";
@@ -91,8 +91,11 @@ export default async function MatchPage({
 
   const homeForm = getTeamFormFromPool(poolExcludingThisMatch, fixture.strHomeTeam);
   const awayForm = getTeamFormFromPool(poolExcludingThisMatch, fixture.strAwayTeam);
+  const homeVenueForm = getVenueFormFromPool(poolExcludingThisMatch, fixture.strHomeTeam, "home");
+  const awayVenueForm = getVenueFormFromPool(poolExcludingThisMatch, fixture.strAwayTeam, "away");
   const probability = estimateProbability(homeForm, awayForm, fixture.league.sport);
   const hasStats = homeForm.played > 0 || awayForm.played > 0;
+  const hasVenueStats = homeVenueForm.played > 0 || awayVenueForm.played > 0;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -163,8 +166,24 @@ export default async function MatchPage({
             )}
 
             <div className="pt-1 border-t border-white/5">
-              <StatsTable home={homeForm} away={awayForm} />
+              <p className="text-xs text-neutral-500 text-center mb-2">
+                Últimos 5 partidos (cualquier sede)
+              </p>
+              <StatsTable home={homeForm} away={awayForm} sport={fixture.league.sport} />
             </div>
+
+            {hasVenueStats && (
+              <div className="pt-1 border-t border-white/5">
+                <p className="text-xs text-neutral-500 text-center mb-2">
+                  {fixture.strHomeTeam} de local vs {fixture.strAwayTeam} de visitante
+                </p>
+                <StatsTable
+                  home={homeVenueForm}
+                  away={awayVenueForm}
+                  sport={fixture.league.sport}
+                />
+              </div>
+            )}
 
             <p className="text-xs text-neutral-500 text-center">
               Estadísticas calculadas con partidos reales (hasta 5 por equipo, de
