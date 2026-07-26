@@ -18,6 +18,10 @@ export function AdSlot({ slot }: { slot: string }) {
         data-ad-slot={slot}
         data-ad-format="auto"
         data-full-width-responsive="true"
+        // Google's script mutates this element (adds data-adsbygoogle-status,
+        // etc.) as soon as it's on the page, before React can reconcile —
+        // that's expected for third-party ad tags, not a real mismatch.
+        suppressHydrationWarning
       />
       <script
         dangerouslySetInnerHTML={{

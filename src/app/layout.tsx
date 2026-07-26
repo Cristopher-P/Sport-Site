@@ -15,6 +15,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const adsenseClientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+
 export const metadata: Metadata = {
   title: {
     default: "CanchaHoy — Horarios de partidos hoy y análisis premium",
@@ -22,6 +24,10 @@ export const metadata: Metadata = {
   },
   description:
     "Horarios y próximos partidos de las principales ligas de fútbol, NBA y NFL, más análisis estadístico premium de varios partidos por venir.",
+  // Alternate AdSense site-verification method (meta tag), on top of the
+  // script-tag method below — Google accepts either, having both is belt
+  // and suspenders.
+  other: adsenseClientId ? { "google-adsense-account": adsenseClientId } : {},
 };
 
 export default function RootLayout({
@@ -29,8 +35,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const adsenseClientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
-
   return (
     <html
       lang="es"
