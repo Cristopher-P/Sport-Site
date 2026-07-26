@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function PrivacidadPage() {
   return (
-    <LegalPage title="Aviso de privacidad" updated="[completar antes de publicar]">
+    <LegalPage title="Aviso de privacidad" updated="26 de julio de 2026">
       <section>
         <h2>1. Qué datos recolectamos</h2>
         <ul>
@@ -22,23 +22,38 @@ export default function PrivacidadPage() {
           </li>
           <li>
             <strong>Cookie de acceso</strong>: una cookie técnica que recuerda que
-            tienes una sesión Premium activa. No se usa para rastrearte ni para
-            publicidad.
+            tienes una sesión Premium activa. No se usa para publicidad.
+          </li>
+          <li>
+            <strong>Cookies publicitarias (Google AdSense)</strong>: usamos Google
+            AdSense para mostrar anuncios. Google puede usar cookies para mostrar
+            anuncios según tus visitas a este y otros sitios. Si visitas desde el
+            Espacio Económico Europeo, el Reino Unido o Suiza, te mostramos primero
+            un mensaje de consentimiento (a través de la plataforma certificada de
+            Google) donde puedes <strong>aceptar, rechazar o administrar</strong>{" "}
+            estas cookies antes de que se activen. Puedes cambiar tu elección
+            cuando quieras desde ese mismo mensaje. Más información en la{" "}
+            <a
+              href="https://policies.google.com/technologies/ads"
+              className="underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              política de anuncios de Google
+            </a>
+            .
           </li>
         </ul>
-        <p>
-          Si en el futuro activamos anuncios (Google AdSense), esta sección se
-          actualizará para explicar las cookies publicitarias correspondientes antes
-          de activarlos.
-        </p>
       </section>
 
       <section>
         <h2>2. Para qué usamos tus datos</h2>
         <p>
-          Únicamente para darte acceso al contenido que pagaste y para comunicarnos
-          contigo sobre tu suscripción (confirmaciones, cambios, cancelación). No
-          vendemos tu información a terceros.
+          Tu correo se usa únicamente para darte acceso al contenido Premium que
+          pagaste y para comunicarnos contigo sobre tu suscripción (confirmaciones,
+          cambios, cancelación). No vendemos tu información a terceros. Las cookies
+          publicitarias las administra Google conforme a tu elección de consentimiento,
+          no nosotros directamente.
         </p>
       </section>
 
@@ -49,8 +64,12 @@ export default function PrivacidadPage() {
             <strong>Stripe</strong> — procesa el pago de tu suscripción.
           </li>
           <li>
-            <strong>[Proveedor de hosting/base de datos, ej. Vercel + Supabase]</strong>{" "}
-            — donde vive el sitio y la lista de suscriptores.
+            <strong>Google AdSense</strong> — muestra los anuncios del sitio, sujeto a
+            tu consentimiento si aplica.
+          </li>
+          <li>
+            <strong>Vercel</strong> (hosting) y <strong>Supabase</strong> (base de
+            datos de suscriptores) — donde vive el sitio y la lista de suscriptores.
           </li>
         </ul>
         <p>
@@ -65,8 +84,11 @@ export default function PrivacidadPage() {
         <p>
           Puedes pedir que te digamos qué datos tenemos sobre ti, corregirlos, o
           eliminarlos (por ejemplo, si cancelas tu suscripción y ya no quieres que
-          conservemos tu correo). Escríbenos a [completar: correo de contacto] para
-          ejercer estos derechos.
+          conservemos tu correo). Escríbenos a{" "}
+          <a href="mailto:perez.perez.cristopher.bahi@gmail.com" className="underline">
+            perez.perez.cristopher.bahi@gmail.com
+          </a>{" "}
+          para ejercer estos derechos.
         </p>
       </section>
 
@@ -90,7 +112,11 @@ export default function PrivacidadPage() {
 
       <section>
         <h2>8. Contacto</h2>
-        <p>[Completar: correo de contacto del sitio].</p>
+        <p>
+          <a href="mailto:perez.perez.cristopher.bahi@gmail.com" className="underline">
+            perez.perez.cristopher.bahi@gmail.com
+          </a>
+        </p>
       </section>
     </LegalPage>
   );

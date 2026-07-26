@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function TerminosPage() {
   return (
-    <LegalPage title="Términos de servicio" updated="[completar antes de publicar]">
+    <LegalPage title="Términos de servicio" updated="26 de julio de 2026">
       <section>
         <h2>1. Qué es CanchaHoy</h2>
         <p>
@@ -48,8 +48,9 @@ export default function TerminosPage() {
           <li>Es una suscripción mensual recurrente, procesada por Stripe.</li>
           <li>Puedes cancelarla cuando quieras; deja de renovarse en el siguiente ciclo.</li>
           <li>
-            [Completar: política de reembolsos — por ejemplo, si no ofreces
-            reembolsos de periodos ya iniciados, dilo aquí explícitamente].
+            No ofrecemos reembolsos por periodos ya iniciados. Si cancelas, tu
+            acceso Premium sigue activo hasta el final del periodo que ya
+            pagaste, y simplemente no se renueva el siguiente mes.
           </li>
           <li>Nos reservamos el derecho de ajustar el precio, avisando con anticipación.</li>
         </ul>
@@ -93,7 +94,11 @@ export default function TerminosPage() {
 
       <section>
         <h2>9. Contacto</h2>
-        <p>[Completar: correo de contacto del sitio].</p>
+        <p>
+          <a href="mailto:perez.perez.cristopher.bahi@gmail.com" className="underline">
+            perez.perez.cristopher.bahi@gmail.com
+          </a>
+        </p>
       </section>
     </LegalPage>
   );
