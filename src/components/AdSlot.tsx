@@ -1,3 +1,5 @@
+import Script from "next/script";
+
 const ADSENSE_CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
 
 /**
@@ -23,7 +25,9 @@ export function AdSlot({ slot }: { slot: string }) {
         // that's expected for third-party ad tags, not a real mismatch.
         suppressHydrationWarning
       />
-      <script
+      <Script
+        id={`adsbygoogle-push-${slot}`}
+        strategy="afterInteractive"
         dangerouslySetInnerHTML={{
           __html: "(adsbygoogle = window.adsbygoogle || []).push({});",
         }}

@@ -42,13 +42,15 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-neutral-950 text-neutral-100">
         {adsenseClientId && (
-          // beforeInteractive guarantees this renders inside <head>, which is
-          // what AdSense's site-ownership verification checks for.
+          // afterInteractive is Next's recommended strategy for ad/analytics
+          // scripts (beforeInteractive is reserved for critical scripts like
+          // bot detectors and caused a console error on re-renders). Site
+          // ownership is already covered by the meta tag + ads.txt below.
           <Script
             async
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClientId}`}
             crossOrigin="anonymous"
-            strategy="beforeInteractive"
+            strategy="afterInteractive"
           />
         )}
         <Header />
