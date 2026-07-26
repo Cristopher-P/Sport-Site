@@ -95,8 +95,8 @@ export default function TerminosPage() {
       <section>
         <h2>9. Contacto</h2>
         <p>
-          <a href="mailto:perez.perez.cristopher.bahi@gmail.com" className="underline">
-            perez.perez.cristopher.bahi@gmail.com
+          <a href="mailto:contacto@tucanchahoy.com" className="underline">
+            contacto@tucanchahoy.com
           </a>
         </p>
       </section>

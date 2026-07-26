@@ -85,8 +85,8 @@ export default function PrivacidadPage() {
           Puedes pedir que te digamos qué datos tenemos sobre ti, corregirlos, o
           eliminarlos (por ejemplo, si cancelas tu suscripción y ya no quieres que
           conservemos tu correo). Escríbenos a{" "}
-          <a href="mailto:perez.perez.cristopher.bahi@gmail.com" className="underline">
-            perez.perez.cristopher.bahi@gmail.com
+          <a href="mailto:contacto@tucanchahoy.com" className="underline">
+            contacto@tucanchahoy.com
           </a>{" "}
           para ejercer estos derechos.
         </p>
@@ -113,8 +113,8 @@ export default function PrivacidadPage() {
       <section>
         <h2>8. Contacto</h2>
         <p>
-          <a href="mailto:perez.perez.cristopher.bahi@gmail.com" className="underline">
-            perez.perez.cristopher.bahi@gmail.com
+          <a href="mailto:contacto@tucanchahoy.com" className="underline">
+            contacto@tucanchahoy.com
           </a>
         </p>
       </section>
