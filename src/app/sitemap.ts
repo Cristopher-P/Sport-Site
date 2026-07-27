@@ -1,8 +1,7 @@
 import type { MetadataRoute } from "next";
 import { LEAGUES } from "@/lib/leagues";
 import { getLeagueFixtures } from "@/lib/sportsdb";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+import { SITE_URL } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [
