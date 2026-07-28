@@ -8,6 +8,14 @@ import { MatchAnalysisCard } from "@/components/MatchAnalysisCard";
 
 const EXAMPLE_SIZE = 4;
 
+// This page reads the access cookie for any slug other than "ejemplo", so it
+// can never be safely static — without this, an unmatched slug (nobody
+// logged in, no such report) crashed with a 500 (DYNAMIC_SERVER_USAGE)
+// instead of a clean redirect/404, because generateStaticParams returning an
+// empty array (no reports published yet) tells Next to try caching this
+// route as static, which conflicts with reading cookies() at request time.
+export const dynamic = "force-dynamic";
+
 export async function generateStaticParams() {
   return REPORTS.map((report) => ({ slug: report.slug }));
 }

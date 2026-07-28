@@ -51,11 +51,21 @@ export function upsertSubscriber(sub: Subscriber): void {
 }
 
 export function isActiveSubscriber(email: string): boolean {
-  const row = getDb()
-    .prepare(`SELECT status, current_period_end FROM subscribers WHERE email = ?`)
-    .get(email.toLowerCase().trim()) as
-    | { status: string; current_period_end: number | null }
-    | undefined;
+  // Vercel's serverless filesystem is read-only outside /tmp, so getDb() can
+  // throw in production (can't create .data/). Fail closed instead of
+  // bubbling a 500 up through the login route — "can't verify" must mean
+  // "no access", never a crash that leaks a stack trace.
+  let row: { status: string; current_period_end: number | null } | undefined;
+  try {
+    row = getDb()
+      .prepare(`SELECT status, current_period_end FROM subscribers WHERE email = ?`)
+      .get(email.toLowerCase().trim()) as
+      | { status: string; current_period_end: number | null }
+      | undefined;
+  } catch (error) {
+    console.error("isActiveSubscriber: db unavailable, denying access", error);
+    return false;
+  }
 
   if (!row) return false;
   if (row.status !== "active") return false;
